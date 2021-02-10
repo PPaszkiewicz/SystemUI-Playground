@@ -1,0 +1,64 @@
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/rootCoordinator"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:fitsSystemWindows="true">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:fitsSystemWindows="true"
+        android:background="?attr/colorPrimary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+
+
+    <FrameLayout
+        android:fitsSystemWindows="true"
+        android:id="@+id/settings"
+        android:layout_marginTop="?attr/actionBarSize"
+        app:layout_anchor="@id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <FrameLayout
+        android:id="@+id/topTextContainer"
+        android:layout_marginStart="4dp"
+        android:fitsSystemWindows="true"
+        android:layout_gravity="top"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="#ff00ff">
+
+        <TextView
+            android:id="@+id/topText"
+            android:text="0px"
+            android:padding="1dp"
+            android:gravity="bottom"
+            android:background="#ff0000"
+            android:textColor="#aaffffff"
+            android:layout_width="wrap_content"
+            android:layout_height="128px"/>
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/bottomTextContainer"
+        android:layout_marginStart="4dp"
+        android:fitsSystemWindows="true"
+        android:layout_gravity="bottom"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="#ff00ff">
+
+        <TextView
+            android:id="@+id/bottomText"
+            android:text="0px"
+            android:padding="1dp"
+            android:background="#ff0000"
+            android:textColor="#aaffffff"
+            android:layout_width="wrap_content"
+            android:gravity="top"
+            android:layout_height="120px"/>
+    </FrameLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
