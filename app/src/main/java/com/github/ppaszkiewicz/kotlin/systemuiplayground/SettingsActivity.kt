@@ -4,17 +4,16 @@ import android.os.Bundle
 import android.view.*
 import android.view.WindowManager.LayoutParams
 import android.widget.FrameLayout
-import android.widget.ListPopupWindow
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
-import androidx.core.content.edit
 import androidx.core.view.updatePadding
 import androidx.lifecycle.lifecycleScope
-import androidx.preference.*
-import androidx.recyclerview.widget.RecyclerView
+import androidx.preference.ListPreference
+import androidx.preference.Preference
+import androidx.preference.PreferenceFragmentCompat
+import androidx.preference.SwitchPreferenceCompat
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -26,9 +25,9 @@ class SettingsActivity : AppCompatActivity() {
         setContentView(R.layout.settings_activity)
         if (savedInstanceState == null) {
             supportFragmentManager
-                    .beginTransaction()
-                    .replace(R.id.settings, SettingsFragment())
-                    .commit()
+                .beginTransaction()
+                .replace(R.id.settings, SettingsFragment())
+                .commit()
         }
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
@@ -36,13 +35,16 @@ class SettingsActivity : AppCompatActivity() {
         setListeners()
     }
 
-    private fun setListeners(){
+    private fun setListeners() {
         findViewById<Toolbar>(R.id.toolbar).setOnApplyWindowInsetsListener { v, insets ->
             v.updatePadding(top = insets.systemWindowInsetTop)
             insets
         }
         findViewById<FrameLayout>(R.id.settings).setOnApplyWindowInsetsListener { v, insets ->
-            v.updatePadding(top = insets.systemWindowInsetTop, bottom = insets.systemWindowInsetBottom)
+            v.updatePadding(
+                top = insets.systemWindowInsetTop,
+                bottom = insets.systemWindowInsetBottom
+            )
             insets
         }
         findViewById<FrameLayout>(R.id.topTextContainer).setOnApplyWindowInsetsListener { v, insets ->
@@ -52,7 +54,8 @@ class SettingsActivity : AppCompatActivity() {
         }
         findViewById<FrameLayout>(R.id.bottomTextContainer).setOnApplyWindowInsetsListener { v, insets ->
             v.updatePadding(bottom = insets.systemWindowInsetBottom)
-            ((v as ViewGroup).getChildAt(0) as TextView).text = "${insets.systemWindowInsetBottom}px"
+            ((v as ViewGroup).getChildAt(0) as TextView).text =
+                "${insets.systemWindowInsetBottom}px"
             insets
         }
     }
@@ -148,7 +151,7 @@ class SettingsActivity : AppCompatActivity() {
                 }
                 true
             }
-            trackChanges{ window.decorView.systemUiVisibility and flag == flag }
+            trackChanges { window.decorView.systemUiVisibility and flag == flag }
         }
 
         fun SwitchPreferenceCompat?.windowFlag(flag: Int) {
@@ -160,19 +163,19 @@ class SettingsActivity : AppCompatActivity() {
                 }
                 true
             }
-            trackChanges{ window.attributes.flags and flag == flag}
+            trackChanges { window.attributes.flags and flag == flag }
         }
 
         // track changes: start by invalidating self
-        private fun SwitchPreferenceCompat.trackChanges(chk: () -> Boolean){
+        private fun SwitchPreferenceCompat.trackChanges(chk: () -> Boolean) {
             sharedPreferences.getBoolean(key, false).let {
                 onPreferenceChangeListener.onPreferenceChange(this, it)
             }
             lifecycleScope.launch {
-                while(isActive){
+                while (isActive) {
                     delay(500)
                     val hasFlag = chk()
-                    if(isChecked != hasFlag){
+                    if (isChecked != hasFlag) {
                         val l = onPreferenceChangeListener
                         onPreferenceChangeListener = null
                         isChecked = hasFlag
@@ -181,8 +184,9 @@ class SettingsActivity : AppCompatActivity() {
                 }
             }
         }
-        
-        fun getColor(color: String) = ContextCompat.getColor(requireContext(), when(color){
+
+        fun getColor(color: String) = ContextCompat.getColor(
+            requireContext(), when (color) {
                 "Blue" -> R.color.blue
                 "Green" -> R.color.green
                 "Yellow50" -> R.color.yellow50
@@ -190,7 +194,8 @@ class SettingsActivity : AppCompatActivity() {
                 "White" -> R.color.white
                 "Transparent" -> R.color.transparent
                 else -> android.R.color.background_dark
-        })
+            }
+        )
     }
 }
 

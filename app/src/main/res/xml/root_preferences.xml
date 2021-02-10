@@ -5,89 +5,89 @@
             app:key="stable_lay"
             app:title="Stable layout"
             app:defaultValue="true"
-            app:summary="SYSTEM_UI_FLAG_LAYOUT_STABLE"/>
+            app:summary="SYSTEM_UI_FLAG_LAYOUT_STABLE" />
 
         <SwitchPreferenceCompat
             app:key="low_profile"
             app:title="Low profile"
-            app:summary="SYSTEM_UI_FLAG_LOW_PROFILE"/>
+            app:summary="SYSTEM_UI_FLAG_LOW_PROFILE" />
 
         <SwitchPreferenceCompat
             app:key="immersive"
             app:title="Immersive"
-            app:summary="SYSTEM_UI_FLAG_IMMERSIVE"/>
+            app:summary="SYSTEM_UI_FLAG_IMMERSIVE" />
 
         <SwitchPreferenceCompat
             app:key="immersive_sticky"
             app:title="Immersive sticky"
             app:dependency="immersive"
-            app:summary="SYSTEM_UI_FLAG_IMMERSIVE_STICKY"/>
+            app:summary="SYSTEM_UI_FLAG_IMMERSIVE_STICKY" />
 
         <SwitchPreferenceCompat
             app:key="lay_fullscreen"
             app:title="Layout fullscreen"
-            app:summary="SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN"/>
+            app:summary="SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN" />
     </PreferenceCategory>
 
     <PreferenceCategory app:title="General window flags">
         <SwitchPreferenceCompat
             app:key="fullscreen"
             app:title="Full screen"
-            app:summary="FLAG_FULLSCREEN"/>
+            app:summary="FLAG_FULLSCREEN" />
 
         <SwitchPreferenceCompat
             app:key="not_fullscreen"
             app:title="Not full screen"
             app:dependency="fullscreen"
-            app:summary="FLAG_FORCE_NOT_FULLSCREEN"/>
+            app:summary="FLAG_FORCE_NOT_FULLSCREEN" />
 
         <SwitchPreferenceCompat
             app:key="nolimit"
             app:title="No limit"
-            app:summary="FLAG_LAYOUT_NO_LIMITS"/>
+            app:summary="FLAG_LAYOUT_NO_LIMITS" />
 
         <SwitchPreferenceCompat
             app:key="bounds"
             app:title="In screen"
-            app:summary="FLAG_LAYOUT_IN_SCREEN"/>
+            app:summary="FLAG_LAYOUT_IN_SCREEN" />
 
         <SwitchPreferenceCompat
             app:key="insetdecor"
             app:title="Inset decor"
             app:dependency="bounds"
-            app:summary="FLAG_LAYOUT_INSET_DECOR"/>
+            app:summary="FLAG_LAYOUT_INSET_DECOR" />
 
         <SwitchPreferenceCompat
             app:key="draw"
             app:title="Draw backgrounds"
-            app:summary="FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS"/>
+            app:summary="FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS" />
     </PreferenceCategory>
 
     <PreferenceCategory app:title="Navigation bar">
         <SwitchPreferenceCompat
             app:key="n_hide"
             app:title="Hide nav"
-            app:summary="SYSTEM_UI_FLAG_HIDE_NAVIGATION"/>
+            app:summary="SYSTEM_UI_FLAG_HIDE_NAVIGATION" />
 
         <SwitchPreferenceCompat
             app:key="n_lay_hide"
             app:title="Layout hide nav"
-            app:summary="SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION"/>
+            app:summary="SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION" />
 
         <SwitchPreferenceCompat
             app:key="n_light"
             app:title="Light nav (26+)"
-            app:summary="SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR"/>
+            app:summary="SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR" />
 
         <SwitchPreferenceCompat
             app:key="n_trans"
             app:title="Translucent navigation"
-            app:summary="FLAG_TRANSLUCENT_NAVIGATION"/>
+            app:summary="FLAG_TRANSLUCENT_NAVIGATION" />
 
         <SwitchPreferenceCompat
             app:key="n_contr"
             app:title="Enforce nav contrast (29+)"
-            app:summary="window.isNavigationBarContrastEnforced"/>
+            app:summary="window.isNavigationBarContrastEnforced" />
 
         <ListPreference
             app:defaultValue="Blue"
@@ -110,17 +110,17 @@
         <SwitchPreferenceCompat
             app:key="s_light"
             app:title="Light status (23+)"
-            app:summary="SYSTEM_UI_FLAG_LIGHT_STATUS_BAR"/>
+            app:summary="SYSTEM_UI_FLAG_LIGHT_STATUS_BAR" />
 
         <SwitchPreferenceCompat
             app:key="s_trans"
             app:title="Translucent status"
-            app:summary="FLAG_TRANSLUCENT_STATUS"/>
+            app:summary="FLAG_TRANSLUCENT_STATUS" />
 
         <SwitchPreferenceCompat
             app:key="s_contr"
             app:title="Enforce status contrast (29+)"
-            app:summary="window.isStatusBarContrastEnforced"/>
+            app:summary="window.isStatusBarContrastEnforced" />
 
         <ListPreference
             app:defaultValue="Blue"
