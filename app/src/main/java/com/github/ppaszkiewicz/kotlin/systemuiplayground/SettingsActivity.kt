@@ -72,7 +72,12 @@ class SettingsActivity : AppCompatActivity() {
                 true
             }
             R.id.dialog -> {
-                BottomDialog().show(supportFragmentManager, "BOTTOM")
+                BottomDialogFragment().show(supportFragmentManager, "BOTTOM")
+//                BottomSheetDialog(this).apply {
+//                    setContentView(R.layout.bottomdialog)
+//                    addFadingNavBar()
+//                    show()
+//                }
                 true
             }
         }

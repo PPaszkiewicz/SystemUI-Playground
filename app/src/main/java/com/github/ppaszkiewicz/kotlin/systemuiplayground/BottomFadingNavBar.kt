@@ -14,25 +14,44 @@ import androidx.appcompat.widget.AppCompatTextView
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.children
 import androidx.core.view.updateLayoutParams
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
-// dialog that has scrollable background behind nav bar
-class BottomDialog : BottomSheetDialogFragment() {
-    companion object {
-        fun isO() = android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O
+class BottomDialogFragment : BottomSheetDialogFragment() {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        return inflater.inflate(R.layout.bottomdialog, container, false)
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        BottomFadingNavBar.installOn(requireDialog() as BottomSheetDialog)
+    }
+}
 
-        if (isO()) {
-            val decor = requireDialog().window!!.decorView
-            decor.systemUiVisibility =
-                decor.systemUiVisibility or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
+fun BottomSheetDialog.addFadingNavBar() = BottomFadingNavBar.installOn(this)
+
+// dialog that has scrollable background behind nav bar
+class BottomFadingNavBar {
+    companion object {
+        fun isO() = android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O
+        fun installOn(dialog: BottomSheetDialog) {
+            BottomFadingNavBar().modifyDialog(dialog)
         }
-        val container = requireDialog().findViewById<ViewGroup>(R.id.container)
+    }
+
+    fun modifyDialog(dialog: BottomSheetDialog) {
+        val container = dialog.findViewById<ViewGroup>(R.id.container)!!
+        if (isO()) {
+            container.systemUiVisibility =
+                container.systemUiVisibility or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
+        }
         container.fitsSystemWindows = false
         (container.getChildAt(0) as ViewGroup).run {
+            check(children.none { it is BottomDimView }) { "BottomFadingNavBar is already installed" }
             // note: coordinator has systemUi FLAG_LAYOUT_FULLSCREEN set, that's why it's laid out on top
             //of the nav bar
             setOnApplyWindowInsetsListener { v, insets ->
@@ -42,16 +61,8 @@ class BottomDialog : BottomSheetDialogFragment() {
             }
             val clip = if (isO()) BottomDimView.PaddingClip.BEHIND_GRADIENT else
                 BottomDimView.PaddingClip.NONE
-            addView(BottomDimView(requireContext(), 0, clip))
+            addView(BottomDimView(dialog.context, 0, clip))
         }
-    }
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.bottomdialog, container, false)
     }
 
     @SuppressLint("ViewConstructor")
