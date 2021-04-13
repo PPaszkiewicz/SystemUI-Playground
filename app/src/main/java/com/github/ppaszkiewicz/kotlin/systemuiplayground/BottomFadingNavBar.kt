@@ -57,10 +57,8 @@ class BottomFadingNavBar {
                 container.systemUiVisibility or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
         }
         container.fitsSystemWindows = false
-        //container.fitsSystemWindows = false
         (container.getChildAt(0) as ViewGroup).run {
             check(children.none { it is BottomDimView }) { "BottomFadingNavBar is already installed" }
-            //WindowCompat.setDecorFitsSystemWindows(dialog.window!!, true)
             // note: coordinator has systemUi FLAG_LAYOUT_FULLSCREEN set, that's why it's laid out on top
             //of the nav bar
             setOnApplyWindowInsetsListener { v, insets ->
