@@ -5,6 +5,7 @@ import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
+import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -12,6 +13,7 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.view.ViewCompat
 import androidx.core.view.children
 import androidx.core.view.updateLayoutParams
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -45,17 +47,25 @@ class BottomFadingNavBar {
 
     fun modifyDialog(dialog: BottomSheetDialog) {
         val container = dialog.findViewById<ViewGroup>(R.id.container)!!
-        if (isO()) {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+            ViewCompat.getWindowInsetsController(container)!!.isAppearanceLightNavigationBars = true
+            // cannot layout behind the bar unless we use the "deprecated" ui flag
+            dialog.window!!.setDecorFitsSystemWindows(false)
+            container.addSystemUiFlag(View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION)
+        } else if (isO()) {
             container.systemUiVisibility =
                 container.systemUiVisibility or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
         }
         container.fitsSystemWindows = false
+        //container.fitsSystemWindows = false
         (container.getChildAt(0) as ViewGroup).run {
             check(children.none { it is BottomDimView }) { "BottomFadingNavBar is already installed" }
+            //WindowCompat.setDecorFitsSystemWindows(dialog.window!!, true)
             // note: coordinator has systemUi FLAG_LAYOUT_FULLSCREEN set, that's why it's laid out on top
             //of the nav bar
             setOnApplyWindowInsetsListener { v, insets ->
                 // dispatch to all children
+                Log.d("T", "insets are $insets")
                 children.forEach { it.dispatchApplyWindowInsets(insets) }
                 insets
             }

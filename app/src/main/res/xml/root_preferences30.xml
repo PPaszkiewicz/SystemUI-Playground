@@ -1,6 +1,62 @@
 <PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <PreferenceCategory app:title="General System UI visibility">
+    <PreferenceCategory app:title="Insets visibility">
+        <SwitchPreferenceCompat
+            app:key="30_system_visible"
+            app:title="System bars"
+            app:defaultValue="true"
+            app:summary="WindowInsetsCompat.Type.systemBars()" />
+
+        <SwitchPreferenceCompat
+            app:key="30_status_visible"
+            app:title="Status bar"
+            app:defaultValue="true"
+            app:summary="WindowInsetsCompat.Type.statusBars()" />
+
+        <SwitchPreferenceCompat
+            app:key="30_nav_visible"
+            app:title="Navigation bar"
+            app:defaultValue="true"
+            app:summary="WindowInsetsCompat.Type.navigationBars()" />
+
+        <SwitchPreferenceCompat
+            app:key="30_ime_visible"
+            app:title="IME (keyboard)"
+            app:defaultValue="true"
+            app:summary="WindowInsetsCompat.Type.ime()" />
+
+        <SwitchPreferenceCompat
+            app:key="30_caption_visible"
+            app:title="Caption bar"
+            app:defaultValue="true"
+            app:summary="WindowInsetsCompat.Type.captionBar()" />
+
+        <SwitchPreferenceCompat
+            app:key="30_cutout_visible"
+            app:title="Display cutout"
+            app:defaultValue="true"
+            app:summary="WindowInsetsCompat.Type.displayCutout()" />
+
+        <SwitchPreferenceCompat
+            app:key="30_system_g_visible"
+            app:title="Status bar"
+            app:defaultValue="true"
+            app:summary="WindowInsetsCompat.Type.systemGestures()" />
+
+        <SwitchPreferenceCompat
+            app:key="30_m_system_g_visible"
+            app:title="Status bar"
+            app:defaultValue="true"
+            app:summary="WindowInsetsCompat.Type.mandatorySystemGestures()" />
+
+        <SwitchPreferenceCompat
+            app:key="30_tap_visible"
+            app:title="Tappable element"
+            app:defaultValue="true"
+            app:summary="WindowInsetsCompat.Type.tappableElement()" />
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="General window flags">
         <SwitchPreferenceCompat
             app:key="fit_windows"
             app:title="Fit system windows"
@@ -8,44 +64,18 @@
             app:summary="Whether root layout has fitSystemWindows set." />
 
         <SwitchPreferenceCompat
-            app:key="stable_lay"
-            app:title="Stable layout"
+            app:key="30_decor_fit"
+            app:title="Decor fit system windows"
             app:defaultValue="true"
-            app:summary="SYSTEM_UI_FLAG_LAYOUT_STABLE" />
+            app:summary="WindowCompat.setDecorFitsSystemWindows" />
 
-        <SwitchPreferenceCompat
-            app:key="low_profile"
-            app:title="Low profile"
-            app:summary="SYSTEM_UI_FLAG_LOW_PROFILE" />
-
-        <SwitchPreferenceCompat
-            app:key="immersive"
-            app:title="Immersive"
-            app:summary="SYSTEM_UI_FLAG_IMMERSIVE" />
-
-        <SwitchPreferenceCompat
-            app:key="immersive_sticky"
-            app:title="Immersive sticky"
-            app:dependency="immersive"
-            app:summary="SYSTEM_UI_FLAG_IMMERSIVE_STICKY" />
-
-        <SwitchPreferenceCompat
-            app:key="lay_fullscreen"
-            app:title="Layout fullscreen"
-            app:summary="SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN" />
-    </PreferenceCategory>
-
-    <PreferenceCategory app:title="General window flags">
-        <SwitchPreferenceCompat
-            app:key="fullscreen"
-            app:title="Full screen"
-            app:summary="FLAG_FULLSCREEN" />
-
-        <SwitchPreferenceCompat
-            app:key="not_fullscreen"
-            app:title="Not full screen"
-            app:dependency="fullscreen"
-            app:summary="FLAG_FORCE_NOT_FULLSCREEN" />
+        <ListPreference
+            app:defaultValue="BEHAVIOR_SHOW_BARS_BY_TOUCH"
+            app:entries="@array/behavior_entries"
+            app:entryValues="@array/behavior_entries"
+            app:key="30_behavior"
+            app:title="System bars behavior"
+            app:useSimpleSummaryProvider="true" />
 
         <SwitchPreferenceCompat
             app:key="nolimit"
@@ -58,12 +88,6 @@
             app:summary="FLAG_LAYOUT_IN_SCREEN" />
 
         <SwitchPreferenceCompat
-            app:key="insetdecor"
-            app:title="Inset decor"
-            app:dependency="bounds"
-            app:summary="FLAG_LAYOUT_INSET_DECOR" />
-
-        <SwitchPreferenceCompat
             app:key="draw"
             app:title="Draw backgrounds"
             app:summary="FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS" />
@@ -71,24 +95,9 @@
 
     <PreferenceCategory app:title="Navigation bar">
         <SwitchPreferenceCompat
-            app:key="n_hide"
-            app:title="Hide nav"
-            app:summary="SYSTEM_UI_FLAG_HIDE_NAVIGATION" />
-
-        <SwitchPreferenceCompat
-            app:key="n_lay_hide"
-            app:title="Layout hide nav"
-            app:summary="SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION" />
-
-        <SwitchPreferenceCompat
             app:key="n_light"
             app:title="Light nav (26+)"
-            app:summary="SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR" />
-
-        <SwitchPreferenceCompat
-            app:key="n_trans"
-            app:title="Translucent navigation"
-            app:summary="FLAG_TRANSLUCENT_NAVIGATION" />
+            app:summary="isAppearanceLightNavigationBars" />
 
         <SwitchPreferenceCompat
             app:key="n_contr"
@@ -117,11 +126,6 @@
             app:key="s_light"
             app:title="Light status (23+)"
             app:summary="SYSTEM_UI_FLAG_LIGHT_STATUS_BAR" />
-
-        <SwitchPreferenceCompat
-            app:key="s_trans"
-            app:title="Translucent status"
-            app:summary="FLAG_TRANSLUCENT_STATUS" />
 
         <SwitchPreferenceCompat
             app:key="s_contr"

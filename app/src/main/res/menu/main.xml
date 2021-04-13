@@ -3,6 +3,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/dialog"
-        android:title="Show dialog"
+        android:title="Dialog"
         app:showAsAction="always" />
 </menu>

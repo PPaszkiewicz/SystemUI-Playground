@@ -1,14 +1,17 @@
 package com.github.ppaszkiewicz.kotlin.systemuiplayground
 
 import android.os.Bundle
-import android.view.*
+import android.view.Menu
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import android.view.WindowManager.LayoutParams
 import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
-import androidx.core.view.updatePadding
+import androidx.core.view.*
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.ListPreference
 import androidx.preference.Preference
@@ -19,11 +22,10 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 /**
- * Activity that lets you control most if not all window and system ui visibility flags.
- *
- * A lot of this is "deprecated" as of API 30.
+ * Activity that shows off new [WindowInsetsCompat] and [WindowInsetsControllerCompat].
  */
-class SettingsActivity : AppCompatActivity() {
+class SettingsActivity30 : AppCompatActivity() {
+    var lastInsets: WindowInsetsCompat? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,7 +33,7 @@ class SettingsActivity : AppCompatActivity() {
         if (savedInstanceState == null) {
             supportFragmentManager
                 .beginTransaction()
-                .replace(R.id.settings, SettingsFragment())
+                .replace(R.id.settings, SettingsFragment30())
                 .commit()
         }
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
@@ -40,28 +42,44 @@ class SettingsActivity : AppCompatActivity() {
         setListeners()
     }
 
+    // note: listeners use extension functions (bottom of file)
     private fun setListeners() {
-        findViewById<Toolbar>(R.id.toolbar).setOnApplyWindowInsetsListener { v, insets ->
-            v.updatePadding(top = insets.systemWindowInsetTop)
+        findViewById<Toolbar>(R.id.toolbar).setOnApplyWindowInsetsListenerCompat { v, insets ->
+            v.updatePadding(top = insets.system.top)
             insets
         }
-        findViewById<FrameLayout>(R.id.settings).setOnApplyWindowInsetsListener { v, insets ->
+        findViewById<FrameLayout>(R.id.settings).setOnApplyWindowInsetsListenerCompat { v, insets ->
+            lastInsets = insets // store bc fragment might want to access them
             v.updatePadding(
-                top = insets.systemWindowInsetTop,
-                bottom = insets.systemWindowInsetBottom
+                top = insets.system.top,
+                bottom = insets.system.bottom
             )
             insets
         }
-        findViewById<FrameLayout>(R.id.topTextContainer).setOnApplyWindowInsetsListener { v, insets ->
-            v.updatePadding(top = insets.systemWindowInsetTop)
-            ((v as ViewGroup).getChildAt(0) as TextView).text = "${insets.systemWindowInsetTop}px"
+        findViewById<FrameLayout>(R.id.topTextContainer).setOnApplyWindowInsetsListenerCompat { v, insets ->
+            v.updatePadding(top = insets.stableSystem.top)
+            val visible = insets.isVisible(WindowInsetsCompat.Type.statusBars())
+            ((v as ViewGroup).getChildAt(0) as TextView).text = "${insets.system.top}px $visible"
             insets
         }
-        findViewById<FrameLayout>(R.id.bottomTextContainer).setOnApplyWindowInsetsListener { v, insets ->
-            v.updatePadding(bottom = insets.systemWindowInsetBottom)
+        findViewById<FrameLayout>(R.id.bottomTextContainer).setOnApplyWindowInsetsListenerCompat { v, insets ->
+            v.updatePadding(bottom = insets.stableSystem.bottom)
+            val visible = insets.isVisible(WindowInsetsCompat.Type.navigationBars())
             ((v as ViewGroup).getChildAt(0) as TextView).text =
-                "${insets.systemWindowInsetBottom}px"
+                "${insets.system.bottom}px $visible"
             insets
+        }
+        findViewById<FrameLayout>(R.id.imeTextContainer).apply {
+            isVisible = true
+            // this is not possible on lower APIs
+            setOnApplyWindowInsetsListenerCompat { v, insets ->
+                val imeInsets = insets.getInsets(WindowInsetsCompat.Type.ime())
+                val visible = insets.isVisible(WindowInsetsCompat.Type.statusBars())
+                v.updatePadding(bottom = imeInsets.bottom)
+                ((v as ViewGroup).getChildAt(0) as TextView).text =
+                    "${imeInsets.bottom}px $visible"
+                insets
+            }
         }
     }
 
@@ -89,12 +107,18 @@ class SettingsActivity : AppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
 
-    class SettingsFragment : PreferenceFragmentCompat() {
+    class SettingsFragment30 : PreferenceFragmentCompat() {
         val window
             get() = requireActivity().window
+        lateinit var controller: WindowInsetsControllerCompat
 
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-            setPreferencesFromResource(R.xml.root_preferences, rootKey)
+            setPreferencesFromResource(R.xml.root_preferences30, rootKey)
+        }
+
+        override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+            super.onViewCreated(view, savedInstanceState)
+            controller = WindowCompat.getInsetsController(window, view)!!
             //general system ui
             findPreference<SwitchPreferenceCompat>("fit_windows").listen {
                 requireActivity().findViewById<View>(R.id.rootCoordinator).apply {
@@ -104,24 +128,33 @@ class SettingsActivity : AppCompatActivity() {
                     }
                 }
             }
-            findPreference<SwitchPreferenceCompat>("stable_lay").systemUiFlag(View.SYSTEM_UI_FLAG_LAYOUT_STABLE)
-            findPreference<SwitchPreferenceCompat>("low_profile").systemUiFlag(View.SYSTEM_UI_FLAG_LOW_PROFILE)
-            findPreference<SwitchPreferenceCompat>("immersive").systemUiFlag(View.SYSTEM_UI_FLAG_IMMERSIVE)
-            findPreference<SwitchPreferenceCompat>("immersive_sticky").systemUiFlag(View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY)
-            findPreference<SwitchPreferenceCompat>("lay_fullscreen").systemUiFlag(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN)
+            // visiblity for insets
+            findPreference<SwitchPreferenceCompat>("30_system_visible").show(WindowInsetsCompat.Type.systemBars())
+            findPreference<SwitchPreferenceCompat>("30_status_visible").show(WindowInsetsCompat.Type.statusBars())
+            findPreference<SwitchPreferenceCompat>("30_nav_visible").show(WindowInsetsCompat.Type.navigationBars())
+            findPreference<SwitchPreferenceCompat>("30_ime_visible").show(WindowInsetsCompat.Type.ime())
+            findPreference<SwitchPreferenceCompat>("30_caption_visible").show(WindowInsetsCompat.Type.captionBar())
+            findPreference<SwitchPreferenceCompat>("30_cutout_visible").show(WindowInsetsCompat.Type.displayCutout())
+            findPreference<SwitchPreferenceCompat>("30_system_g_visible").show(WindowInsetsCompat.Type.systemGestures())
+            findPreference<SwitchPreferenceCompat>("30_m_system_g_visible").show(WindowInsetsCompat.Type.mandatorySystemGestures())
+            findPreference<SwitchPreferenceCompat>("30_tap_visible").show(WindowInsetsCompat.Type.tappableElement())
+
             // general window flags
-            findPreference<SwitchPreferenceCompat>("fullscreen").windowFlag(LayoutParams.FLAG_FULLSCREEN)
-            findPreference<SwitchPreferenceCompat>("not_fullscreen").windowFlag(LayoutParams.FLAG_FORCE_NOT_FULLSCREEN)
+            findPreference<ListPreference>("30_behavior").listen {
+                controller.systemBarsBehavior = getBehavior(it as String)
+            }
+            findPreference<SwitchPreferenceCompat>("30_decor_fit").listen {
+                WindowCompat.setDecorFitsSystemWindows(window, it as Boolean)
+            }
             findPreference<SwitchPreferenceCompat>("nolimit").windowFlag(LayoutParams.FLAG_LAYOUT_NO_LIMITS)
             findPreference<SwitchPreferenceCompat>("bounds").windowFlag(LayoutParams.FLAG_LAYOUT_IN_SCREEN)
-            findPreference<SwitchPreferenceCompat>("insetdecor").windowFlag(LayoutParams.FLAG_LAYOUT_INSET_DECOR)
             findPreference<SwitchPreferenceCompat>("draw").windowFlag(LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
 
+
             // navigation
-            findPreference<SwitchPreferenceCompat>("n_hide").systemUiFlag(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION)
-            findPreference<SwitchPreferenceCompat>("n_lay_hide").systemUiFlag(View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION)
-            findPreference<SwitchPreferenceCompat>("n_light").systemUiFlag(View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR)
-            findPreference<SwitchPreferenceCompat>("n_trans").windowFlag(LayoutParams.FLAG_TRANSLUCENT_NAVIGATION)
+            findPreference<SwitchPreferenceCompat>("n_light").listen {
+                controller.isAppearanceLightNavigationBars = it as Boolean
+            }
             findPreference<SwitchPreferenceCompat>("n_contr").listen {
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
                     window.isNavigationBarContrastEnforced = it as Boolean
@@ -137,8 +170,9 @@ class SettingsActivity : AppCompatActivity() {
             }
 
             // statusbar
-            findPreference<SwitchPreferenceCompat>("s_light").systemUiFlag(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR)
-            findPreference<SwitchPreferenceCompat>("s_trans").windowFlag(LayoutParams.FLAG_TRANSLUCENT_STATUS)
+            findPreference<SwitchPreferenceCompat>("s_light").listen {
+                controller.isAppearanceLightStatusBars = it as Boolean
+            }
             findPreference<SwitchPreferenceCompat>("s_contr").listen {
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
                     window.isStatusBarContrastEnforced = it as Boolean
@@ -159,17 +193,18 @@ class SettingsActivity : AppCompatActivity() {
             this.sharedPreferences.all[key]?.let { l(it) }
         }
 
-
-        fun SwitchPreferenceCompat?.systemUiFlag(flag: Int) {
+        fun SwitchPreferenceCompat?.show(what: Int) {
             this!!.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { _, v ->
                 if (v == true) {
-                    window.addSystemUiFlag(flag)
+                    controller.show(what)
                 } else {
-                    window.clearSystemUiFlag(flag)
+                    controller.hide(what)
                 }
                 true
             }
-            trackChanges { window.decorView.systemUiVisibility and flag == flag }
+            trackChanges {
+                (requireActivity() as? SettingsActivity30)?.lastInsets?.isVisible(what)
+            }
         }
 
         fun SwitchPreferenceCompat?.windowFlag(flag: Int) {
@@ -181,11 +216,13 @@ class SettingsActivity : AppCompatActivity() {
                 }
                 true
             }
-            trackChanges { window.attributes.flags and flag == flag }
+            trackChanges {
+                window.attributes.flags and flag == flag
+            }
         }
 
         // track changes: start by invalidating self
-        private fun SwitchPreferenceCompat.trackChanges(chk: () -> Boolean) {
+        private fun SwitchPreferenceCompat.trackChanges(chk: () -> Boolean?) {
             sharedPreferences.getBoolean(key, false).let {
                 onPreferenceChangeListener.onPreferenceChange(this, it)
             }
@@ -193,7 +230,7 @@ class SettingsActivity : AppCompatActivity() {
                 while (isActive) {
                     delay(500)
                     val hasFlag = chk()
-                    if (isChecked != hasFlag) {
+                    if (hasFlag != null && isChecked != hasFlag) {
                         val l = onPreferenceChangeListener
                         onPreferenceChangeListener = null
                         isChecked = hasFlag
@@ -210,27 +247,27 @@ class SettingsActivity : AppCompatActivity() {
                 "Yellow50" -> R.color.yellow50
                 "Black" -> R.color.black
                 "White" -> R.color.white
-                "Translucent" -> R.color.translucent
                 "Transparent" -> R.color.transparent
                 else -> android.R.color.background_dark
             }
         )
+
+        fun getBehavior(behavior: String) = when (behavior) {
+            "BEHAVIOR_SHOW_BARS_BY_SWIPE" -> WindowInsetsControllerCompat.BEHAVIOR_SHOW_BARS_BY_SWIPE
+            "BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE" -> WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            else -> WindowInsetsControllerCompat.BEHAVIOR_SHOW_BARS_BY_TOUCH
+        }
     }
 }
 
-
-fun Window.addSystemUiFlag(flag: Int) {
-    decorView.systemUiVisibility = decorView.systemUiVisibility or flag
+fun View.setOnApplyWindowInsetsListenerCompat(l: (View, WindowInsetsCompat) -> WindowInsetsCompat) {
+    setOnApplyWindowInsetsListener { v, insets ->
+        l(v, WindowInsetsCompat.toWindowInsetsCompat(insets, v)).toWindowInsets()
+    }
 }
 
-fun Window.clearSystemUiFlag(flag: Int) {
-    decorView.systemUiVisibility = decorView.systemUiVisibility and flag.inv()
-}
+val WindowInsetsCompat.system
+    get() = getInsets(WindowInsetsCompat.Type.systemBars())
 
-fun View.addSystemUiFlag(flag: Int) {
-    systemUiVisibility = systemUiVisibility or flag
-}
-
-fun View.clearSystemUiFlag(flag: Int) {
-    systemUiVisibility = systemUiVisibility and flag.inv()
-}
+val WindowInsetsCompat.stableSystem
+    get() = getInsetsIgnoringVisibility(WindowInsetsCompat.Type.systemBars())

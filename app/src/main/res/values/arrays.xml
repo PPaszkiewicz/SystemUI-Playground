@@ -6,6 +6,13 @@
         <item>Yellow50</item>
         <item>Black</item>
         <item>White</item>
+        <item>Translucent</item>
         <item>Transparent</item>
+    </string-array>
+
+    <string-array name="behavior_entries">
+        <item>BEHAVIOR_SHOW_BARS_BY_TOUCH</item>
+        <item>BEHAVIOR_SHOW_BARS_BY_SWIPE</item>
+        <item>BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE</item>
     </string-array>
 </resources>

@@ -13,4 +13,19 @@
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
     </style>
+
+    <style name="Theme.SystemUIPlayground.Float" parent="Theme.SystemUIPlayground">
+        <!--        <item name="android:windowBackground">@null</item>-->
+        <!--        <item name="android:backgroundDimEnabled">false</item>-->
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowAnimationStyle">@style/Theme.SystemUIPlayground.Float.FadeIn
+        </item>
+    </style>
+
+    <style name="Theme.SystemUIPlayground.Float.FadeIn">
+        <item name="android:windowEnterAnimation">@android:anim/fade_in</item>
+        <item name="android:windowReenterTransition">@android:anim/fade_in</item>
+        <item name="android:windowExitAnimation">@android:anim/fade_out</item>
+        <item name="android:windowReturnTransition">@android:anim/fade_out</item>
+    </style>
 </resources>
