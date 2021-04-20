@@ -36,10 +36,10 @@ class BottomDialogFragment : BottomSheetDialogFragment() {
 
 fun BottomSheetDialog.addFadingNavBar() = BottomFadingNavBar.installOn(this)
 
-// dialog that has scrollable background behind nav bar
+/** Dialog that has scrollable background behind nav bar */
 class BottomFadingNavBar {
     companion object {
-        fun isO() = android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O
+        private fun isO() = android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O
         fun installOn(dialog: BottomSheetDialog) {
             BottomFadingNavBar().modifyDialog(dialog)
         }
@@ -49,7 +49,7 @@ class BottomFadingNavBar {
         val container = dialog.findViewById<ViewGroup>(R.id.container)!!
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
             ViewCompat.getWindowInsetsController(container)!!.isAppearanceLightNavigationBars = true
-            // cannot layout behind the bar unless we use the "deprecated" ui flag
+            // cannot layout behind the nav bar unless we use the "deprecated" ui flag
             dialog.window!!.setDecorFitsSystemWindows(false)
             container.addSystemUiFlag(View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION)
         } else if (isO()) {

@@ -1,12 +1,11 @@
 package com.github.ppaszkiewicz.kotlin.systemuiplayground
 
 import android.os.Bundle
-import android.view.*
+import android.view.View
+import android.view.ViewGroup
+import android.view.Window
 import android.view.WindowManager.LayoutParams
-import android.widget.FrameLayout
 import android.widget.TextView
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.core.view.updatePadding
 import androidx.lifecycle.lifecycleScope
@@ -14,6 +13,7 @@ import androidx.preference.ListPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
+import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -23,70 +23,37 @@ import kotlinx.coroutines.launch
  *
  * A lot of this is "deprecated" as of API 30.
  */
-class SettingsActivity : AppCompatActivity() {
+class SettingsActivity : SettingsActivityBase() {
+
+    override fun instantiateFragment() = SettingsFragment()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.settings_activity)
-        if (savedInstanceState == null) {
-            supportFragmentManager
-                .beginTransaction()
-                .replace(R.id.settings, SettingsFragment())
-                .commit()
-        }
-        val toolbar = findViewById<Toolbar>(R.id.toolbar)
-        setSupportActionBar(toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        setListeners()
-    }
-
-    private fun setListeners() {
-        findViewById<Toolbar>(R.id.toolbar).setOnApplyWindowInsetsListener { v, insets ->
+        b.toolbar.setOnApplyWindowInsetsListener { v, insets ->
             v.updatePadding(top = insets.systemWindowInsetTop)
             insets
         }
-        findViewById<FrameLayout>(R.id.settings).setOnApplyWindowInsetsListener { v, insets ->
+        b.settings.setOnApplyWindowInsetsListener { v, insets ->
             v.updatePadding(
                 top = insets.systemWindowInsetTop,
-                bottom = insets.systemWindowInsetBottom
+                //     bottom = insets.systemWindowInsetBottom
             )
+            // a little ugly, just send inset to preference recycler view instead of propagating it
+            b.settings.findViewById<RecyclerView>(R.id.recycler_view)
+                .updatePadding(bottom = insets.systemWindowInsetBottom)
             insets
         }
-        findViewById<FrameLayout>(R.id.topTextContainer).setOnApplyWindowInsetsListener { v, insets ->
+        b.topTextContainer.setOnApplyWindowInsetsListener { v, insets ->
             v.updatePadding(top = insets.systemWindowInsetTop)
             ((v as ViewGroup).getChildAt(0) as TextView).text = "${insets.systemWindowInsetTop}px"
             insets
         }
-        findViewById<FrameLayout>(R.id.bottomTextContainer).setOnApplyWindowInsetsListener { v, insets ->
+        b.bottomTextContainer.setOnApplyWindowInsetsListener { v, insets ->
             v.updatePadding(bottom = insets.systemWindowInsetBottom)
             ((v as ViewGroup).getChildAt(0) as TextView).text =
                 "${insets.systemWindowInsetBottom}px"
             insets
         }
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.main, menu)
-        return super.onCreateOptionsMenu(menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            android.R.id.home -> {
-                recreate()
-                true
-            }
-            R.id.dialog -> {
-                BottomDialogFragment().show(supportFragmentManager, "BOTTOM")
-//                BottomSheetDialog(this).apply {
-//                    setContentView(R.layout.bottomdialog)
-//                    addFadingNavBar()
-//                    show()
-//                }
-                true
-            }
-        }
-        return super.onOptionsItemSelected(item)
     }
 
     class SettingsFragment : PreferenceFragmentCompat() {
@@ -97,7 +64,7 @@ class SettingsActivity : AppCompatActivity() {
             setPreferencesFromResource(R.xml.root_preferences, rootKey)
             //general system ui
             findPreference<SwitchPreferenceCompat>("fit_windows").listen {
-                requireActivity().findViewById<View>(R.id.rootCoordinator).apply {
+                (requireActivity() as SettingsActivityBase).b.rootFrame.apply {
                     if (it != fitsSystemWindows) {
                         fitsSystemWindows = it as Boolean
                         requestApplyInsets()

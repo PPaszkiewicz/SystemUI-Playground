@@ -1,22 +1,18 @@
 package com.github.ppaszkiewicz.kotlin.systemuiplayground
 
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
 import android.view.View
-import android.view.ViewGroup
 import android.view.WindowManager.LayoutParams
-import android.widget.FrameLayout
-import android.widget.TextView
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.core.view.*
+import androidx.core.view.WindowInsetsCompat.Type
+import androidx.core.view.WindowInsetsCompat.toWindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.ListPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
+import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -24,87 +20,56 @@ import kotlinx.coroutines.launch
 /**
  * Activity that shows off new [WindowInsetsCompat] and [WindowInsetsControllerCompat].
  */
-class SettingsActivity30 : AppCompatActivity() {
+class SettingsActivity30 : SettingsActivityBase() {
     var lastInsets: WindowInsetsCompat? = null
+
+    override fun instantiateFragment() = SettingsFragment30()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.settings_activity)
-        if (savedInstanceState == null) {
-            supportFragmentManager
-                .beginTransaction()
-                .replace(R.id.settings, SettingsFragment30())
-                .commit()
-        }
-        val toolbar = findViewById<Toolbar>(R.id.toolbar)
-        setSupportActionBar(toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        setListeners()
-    }
-
-    // note: listeners use extension functions (bottom of file)
-    private fun setListeners() {
-        findViewById<Toolbar>(R.id.toolbar).setOnApplyWindowInsetsListenerCompat { v, insets ->
-            v.updatePadding(top = insets.system.top)
+        // setOnApplyWindowInsetsListenerCompat is helper extension (bottom of file)
+        b.toolbar.setOnApplyWindowInsetsListenerCompat { v, insets ->
+            v.updatePadding(top = insets.getInsets(Type.systemBars()).top)
             insets
         }
-        findViewById<FrameLayout>(R.id.settings).setOnApplyWindowInsetsListenerCompat { v, insets ->
+        b.settings.setOnApplyWindowInsetsListenerCompat { v, insets ->
             lastInsets = insets // store bc fragment might want to access them
             v.updatePadding(
-                top = insets.system.top,
-                bottom = insets.system.bottom
+                top = insets.getInsets(Type.systemBars()).top,
+                //    bottom = insets.getInsets(Type.systemBars()).bottom
+            )
+            // a little ugly, just send inset to preference recycler view instead of propagating it
+            b.settings.findViewById<RecyclerView>(R.id.recycler_view).updatePadding(
+                bottom = insets.getInsets(Type.systemBars()).bottom
             )
             insets
         }
-        findViewById<FrameLayout>(R.id.topTextContainer).setOnApplyWindowInsetsListenerCompat { v, insets ->
-            v.updatePadding(top = insets.stableSystem.top)
-            val visible = insets.isVisible(WindowInsetsCompat.Type.statusBars())
-            ((v as ViewGroup).getChildAt(0) as TextView).text = "${insets.system.top}px $visible"
+        // inset display helpers
+        b.topTextContainer.setOnApplyWindowInsetsListenerCompat { v, insets ->
+            v.updatePadding(top = insets.getInsetsIgnoringVisibility(Type.systemBars()).top)
+            val topInset = insets.getInsets(Type.systemBars()).top
+            val visible = insets.isVisible(Type.statusBars())
+            b.topText.text = "${topInset}px $visible"
             insets
         }
-        findViewById<FrameLayout>(R.id.bottomTextContainer).setOnApplyWindowInsetsListenerCompat { v, insets ->
-            v.updatePadding(bottom = insets.stableSystem.bottom)
-            val visible = insets.isVisible(WindowInsetsCompat.Type.navigationBars())
-            ((v as ViewGroup).getChildAt(0) as TextView).text =
-                "${insets.system.bottom}px $visible"
+        b.bottomTextContainer.setOnApplyWindowInsetsListenerCompat { v, insets ->
+            v.updatePadding(bottom = insets.getInsetsIgnoringVisibility(Type.systemBars()).bottom)
+            val bottomInset = insets.getInsets(Type.systemBars()).bottom
+            val visible = insets.isVisible(Type.navigationBars())
+            b.bottomText.text = "${bottomInset}px $visible"
             insets
         }
-        findViewById<FrameLayout>(R.id.imeTextContainer).apply {
+        b.imeTextContainer.apply {
             isVisible = true
             // this is not possible on lower APIs
             setOnApplyWindowInsetsListenerCompat { v, insets ->
-                val imeInsets = insets.getInsets(WindowInsetsCompat.Type.ime())
-                val visible = insets.isVisible(WindowInsetsCompat.Type.statusBars())
+                val imeInsets = insets.getInsets(Type.ime())
+                val visible = insets.isVisible(Type.statusBars())
                 v.updatePadding(bottom = imeInsets.bottom)
-                ((v as ViewGroup).getChildAt(0) as TextView).text =
-                    "${imeInsets.bottom}px $visible"
+                b.imeText.text = "${imeInsets.bottom}px $visible"
                 insets
             }
         }
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.main, menu)
-        return super.onCreateOptionsMenu(menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            android.R.id.home -> {
-                recreate()
-                true
-            }
-            R.id.dialog -> {
-                BottomDialogFragment().show(supportFragmentManager, "BOTTOM")
-//                BottomSheetDialog(this).apply {
-//                    setContentView(R.layout.bottomdialog)
-//                    addFadingNavBar()
-//                    show()
-//                }
-                true
-            }
-        }
-        return super.onOptionsItemSelected(item)
     }
 
     class SettingsFragment30 : PreferenceFragmentCompat() {
@@ -121,7 +86,7 @@ class SettingsActivity30 : AppCompatActivity() {
             controller = WindowCompat.getInsetsController(window, view)!!
             //general system ui
             findPreference<SwitchPreferenceCompat>("fit_windows").listen {
-                requireActivity().findViewById<View>(R.id.rootCoordinator).apply {
+                (requireActivity() as SettingsActivityBase).b.rootFrame.apply {
                     if (it != fitsSystemWindows) {
                         fitsSystemWindows = it as Boolean
                         requestApplyInsets()
@@ -129,15 +94,15 @@ class SettingsActivity30 : AppCompatActivity() {
                 }
             }
             // visiblity for insets
-            findPreference<SwitchPreferenceCompat>("30_system_visible").show(WindowInsetsCompat.Type.systemBars())
-            findPreference<SwitchPreferenceCompat>("30_status_visible").show(WindowInsetsCompat.Type.statusBars())
-            findPreference<SwitchPreferenceCompat>("30_nav_visible").show(WindowInsetsCompat.Type.navigationBars())
-            findPreference<SwitchPreferenceCompat>("30_ime_visible").show(WindowInsetsCompat.Type.ime())
-            findPreference<SwitchPreferenceCompat>("30_caption_visible").show(WindowInsetsCompat.Type.captionBar())
-            findPreference<SwitchPreferenceCompat>("30_cutout_visible").show(WindowInsetsCompat.Type.displayCutout())
-            findPreference<SwitchPreferenceCompat>("30_system_g_visible").show(WindowInsetsCompat.Type.systemGestures())
-            findPreference<SwitchPreferenceCompat>("30_m_system_g_visible").show(WindowInsetsCompat.Type.mandatorySystemGestures())
-            findPreference<SwitchPreferenceCompat>("30_tap_visible").show(WindowInsetsCompat.Type.tappableElement())
+            findPreference<SwitchPreferenceCompat>("30_system_visible").show(Type.systemBars())
+            findPreference<SwitchPreferenceCompat>("30_status_visible").show(Type.statusBars())
+            findPreference<SwitchPreferenceCompat>("30_nav_visible").show(Type.navigationBars())
+            findPreference<SwitchPreferenceCompat>("30_ime_visible").show(Type.ime())
+            findPreference<SwitchPreferenceCompat>("30_caption_visible").show(Type.captionBar())
+            findPreference<SwitchPreferenceCompat>("30_cutout_visible").show(Type.displayCutout())
+            findPreference<SwitchPreferenceCompat>("30_system_g_visible").show(Type.systemGestures())
+            findPreference<SwitchPreferenceCompat>("30_m_system_g_visible").show(Type.mandatorySystemGestures())
+            findPreference<SwitchPreferenceCompat>("30_tap_visible").show(Type.tappableElement())
 
             // general window flags
             findPreference<ListPreference>("30_behavior").listen {
@@ -260,14 +225,9 @@ class SettingsActivity30 : AppCompatActivity() {
     }
 }
 
+/** Listener that wraps received insets with compat implementations. */
 fun View.setOnApplyWindowInsetsListenerCompat(l: (View, WindowInsetsCompat) -> WindowInsetsCompat) {
     setOnApplyWindowInsetsListener { v, insets ->
-        l(v, WindowInsetsCompat.toWindowInsetsCompat(insets, v)).toWindowInsets()
+        l(v, toWindowInsetsCompat(insets, v)).toWindowInsets()
     }
 }
-
-val WindowInsetsCompat.system
-    get() = getInsets(WindowInsetsCompat.Type.systemBars())
-
-val WindowInsetsCompat.stableSystem
-    get() = getInsetsIgnoringVisibility(WindowInsetsCompat.Type.systemBars())
