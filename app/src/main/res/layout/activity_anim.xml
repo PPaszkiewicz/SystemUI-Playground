@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    android:clipToPadding="false"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:fitsSystemWindows="true"
+        android:background="?attr/colorPrimary"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintVertical_bias="0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:text="Keyboard"
+        android:id="@+id/imeInfo"
+        android:layout_marginTop="24dp"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/imeValue"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintVertical_bias="0"
+        android:foreground="?attr/selectableItemBackground"
+        android:textColor="@color/accent_select"
+        android:gravity="center"
+        android:layout_width="0dp"
+        android:layout_height="36dp" />
+
+    <TextView
+        android:text="200 / 200"
+        android:id="@+id/imeValue"
+        app:layout_constraintBaseline_toBaselineOf="@+id/imeInfo"
+        app:layout_constraintStart_toEndOf="@+id/imeInfo"
+        app:layout_constraintEnd_toStartOf="@+id/imeValuePercent"
+        android:gravity="center"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:text="90%"
+        android:ems="4"
+        android:gravity="center"
+        android:id="@+id/imeValuePercent"
+        app:layout_constraintBaseline_toBaselineOf="@+id/imeInfo"
+        app:layout_constraintStart_toEndOf="@+id/imeValue"
+        app:layout_constraintEnd_toStartOf="@+id/imeValueSeekbar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <androidx.appcompat.widget.AppCompatSeekBar
+        android:text="90%"
+        android:ems="4"
+        android:gravity="center"
+        android:id="@+id/imeValueSeekbar"
+        app:layout_constraintTop_toTopOf="@+id/imeInfo"
+        app:layout_constraintBottom_toBottomOf="@id/imeInfo"
+        app:layout_constraintStart_toEndOf="@+id/imeValuePercent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintWidth_percent="0.4"
+        android:layout_width="0dp"
+        android:layout_height="36dp" />
+
+    <ImageView
+        android:id="@+id/imgIme"
+        app:layout_constraintHorizontal_bias="0.67"
+        android:src="@mipmap/ic_launcher"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

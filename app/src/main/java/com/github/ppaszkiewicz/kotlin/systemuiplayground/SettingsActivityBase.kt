@@ -5,7 +5,6 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
 import androidx.core.view.children
 import androidx.fragment.app.Fragment
 import com.github.ppaszkiewicz.kotlin.systemuiplayground.databinding.SettingsActivityBinding
@@ -26,13 +25,12 @@ abstract class SettingsActivityBase : AppCompatActivity() {
                 .replace(R.id.settings, instantiateFragment())
                 .commit()
         }
-        val toolbar = findViewById<Toolbar>(R.id.toolbar)
-        setSupportActionBar(toolbar)
+        setSupportActionBar(b.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         // default apply inset behavior is to dispatch to first child that fitsSystemWindows;
         // alter it so its dispatched to all
-        b.rootFrame.setOnApplyWindowInsetsListener { v, insets ->
+        b.root.setOnApplyWindowInsetsListener { v, insets ->
             (v as ViewGroup).children.forEach {
                 if (it.fitsSystemWindows) it.dispatchApplyWindowInsets(insets)
             }
@@ -47,6 +45,10 @@ abstract class SettingsActivityBase : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
+            android.R.id.home -> {
+                onBackPressed()
+                true
+            }
             R.id.dialog -> {
                 BottomDialogFragment().show(supportFragmentManager, "BOTTOM")
                 true
